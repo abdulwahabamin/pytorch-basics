@@ -25,7 +25,7 @@ class Data(Dataset):
             self.data.extend([os.path.join(data_path, label, image) for image in image_paths])
             self.labels.extend([label for i in range(len(image_paths))])
 
-        self.labels = torch.from_numpy(np.array(self.labels).astype(int)).long()
+        self.labels = np.array(self.labels).astype(int)
 
     def __len__(self):
         return len(self.data)
@@ -34,7 +34,7 @@ class Data(Dataset):
         img, label = self.data[index], self.labels[index]
         trans_tensor = transforms.ToTensor()
         img = trans_tensor(Image.open(img))
-
+        label = torch.from_numpy(label).long()
         return img, label
 
 
@@ -90,7 +90,7 @@ def main():
         train_pbar = tqdm(train_loader)
         train_pbar.set_description('Epoch {}/{}'.format(epoch + 1, num_epochs))
         train_loss = 0
-        for batch_id, data in enumerate(train_pbar):
+        for batch_id, data in enumerate(train_loader):
             input, target = data
             input, target = input.to(device), target.to(device)
             optimizer.zero_grad()
@@ -110,7 +110,7 @@ def main():
         val_loss = 0
 
         with torch.no_grad():
-            for batch_id, data in enumerate(val_pbar):
+            for batch_id, data in enumerate(val_loader):
                 input, target = data
                 input, target = input.to(device), target.to(device)
                 output = model(input)

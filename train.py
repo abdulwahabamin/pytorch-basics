@@ -21,11 +21,9 @@ class Data(Dataset):
         self.labels = []
 
         for label in classes:
-            image_paths = os.listdir(os.path.join(data_path, label))
-            self.data.extend([os.path.join(data_path, label, image) for image in image_paths])
-            self.labels.extend([label for i in range(len(image_paths))])
-
-        # self.labels = np.asarray(self.labels).astype(int)
+            images = os.listdir(os.path.join(data_path, label))
+            self.data.extend([os.path.join(data_path, label, image) for image in images])
+            self.labels.extend([label for i in range(len(images))])
 
     def __len__(self):
         return len(self.data)

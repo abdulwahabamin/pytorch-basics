@@ -25,7 +25,7 @@ class Data(Dataset):
             self.data.extend([os.path.join(data_path, label, image) for image in image_paths])
             self.labels.extend([label for i in range(len(image_paths))])
 
-        self.labels = np.array(self.labels).astype(int)
+        # self.labels = np.asarray(self.labels).astype(int)
 
     def __len__(self):
         return len(self.data)
@@ -34,7 +34,7 @@ class Data(Dataset):
         img, label = self.data[index], self.labels[index]
         trans_tensor = transforms.ToTensor()
         img = trans_tensor(Image.open(img))
-        label = torch.from_numpy(label).long()
+        label = torch.as_tensor(np.asarray(label).astype(int)).long()
         return img, label
 
 
@@ -65,13 +65,14 @@ class Model(nn.Module):
 
 def main():
     # Variables
+    data_dir = 'data'
     batch_size = 32
     test_batch_size = 1000
     num_epochs = 100
     temp_loss = np.Inf
     # Load data
-    train_data = Data(dataset_dir='data')
-    val_data = Data(dataset_dir='data', train=False)
+    train_data = Data(dataset_dir=data_dir)
+    val_data = Data(dataset_dir=data_dir, train=False)
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_data, batch_size=test_batch_size, shuffle=True)
     # get device
@@ -91,7 +92,7 @@ def main():
         train_pbar = tqdm(train_loader)
         train_pbar.set_description('Epoch {}/{}'.format(epoch + 1, num_epochs))
         train_loss = 0
-        for batch_id, data in enumerate(train_loader):
+        for batch_id, data in enumerate(train_pbar):
             input, target = data
             input, target = input.to(device), target.to(device)
             optimizer.zero_grad()
@@ -111,7 +112,7 @@ def main():
         val_loss = 0
 
         with torch.no_grad():
-            for batch_id, data in enumerate(val_loader):
+            for batch_id, data in enumerate(val_pbar):
                 input, target = data
                 input, target = input.to(device), target.to(device)
                 output = model(input)

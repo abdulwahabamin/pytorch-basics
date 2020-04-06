@@ -55,7 +55,8 @@ class Model(nn.Module):
         x = torch.relu(x)
         x = self.maxpool(x)
         x = self.dropout1(x)
-        x = torch.flatten(x, start_dim=1)  # flatten after batch size [batch_size, channels, rows, columns]
+        # flatten after batch size [batch_size, channels, rows, columns] --> [channels, rows, columns]
+        x = torch.flatten(x, start_dim=1)
         # print(x.size())
         x = self.fc1(x)
         output = self.fc2(x)
